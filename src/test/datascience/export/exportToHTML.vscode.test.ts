@@ -26,6 +26,7 @@ suite('DataScience - Export HTML', () => {
             // tslint:disable-next-line:no-invalid-this
             this.skip();
         }
+        // https://github.com/microsoft/vscode-jupyter/issues/208
         // tslint:disable-next-line:no-invalid-this
         this.skip();
     });
