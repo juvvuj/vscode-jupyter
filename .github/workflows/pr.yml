@@ -590,7 +590,7 @@ jobs:
         # We're not running CI on macOS for now because it's one less matrix entry to lower the number of runners used,
         # macOS runners are expensive, and we assume that Ubuntu is enough to cover the UNIX case.
         # os: [ubuntu-latest, windows-latest]
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         python: [3.8]
     steps:
       - name: Use Python ${{matrix.python}}
@@ -619,7 +619,7 @@ jobs:
           name: ${{env.VSIX_NAME}}
 
       - name: Install dependencies (npm ci)
-        run: npm ci --prefer-offline
+        run: npm install --prefer-offline
 
       - name: Install test requirements
         run: |
