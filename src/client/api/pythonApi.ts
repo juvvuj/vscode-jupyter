@@ -15,6 +15,7 @@ import { inject, injectable } from 'inversify';
 import { CancellationToken, Disposable, Event, EventEmitter, Uri } from 'vscode';
 import { IApplicationEnvironment, IApplicationShell, ICommandManager } from '../common/application/types';
 import { InterpreterUri } from '../common/installer/types';
+import { traceError, traceInfo } from '../common/logger';
 import { IExtensions, InstallerResponse, IPersistentStateFactory, Product, Resource } from '../common/types';
 import { createDeferred } from '../common/utils/async';
 import * as localize from '../common/utils/localize';
@@ -54,9 +55,13 @@ export class PythonApiProvider implements IPythonApiProvider {
     }
 
     public setApi(api: PythonApi): void {
+        traceInfo('Python API received');
+        traceError('Python API received');
         if (this.api.resolved) {
             return;
         }
+        traceInfo('Python API resolved');
+        traceError('Python API resolved');
         this.api.resolve(api);
     }
 
@@ -65,6 +70,7 @@ export class PythonApiProvider implements IPythonApiProvider {
             return;
         }
         this.initialized = true;
+        traceInfo('Initializing Python API');
         const pythonExtension = this.extensions.getExtension<{ jupyter: { registerHooks(): void } }>(PythonExtension);
         if (!pythonExtension) {
             await this.extensionChecker.showPythonExtensionInstallRequiredPrompt();
@@ -72,6 +78,7 @@ export class PythonApiProvider implements IPythonApiProvider {
             if (!pythonExtension.isActive) {
                 await pythonExtension.activate();
             }
+            traceInfo('registerHooks in Python API');
             pythonExtension.exports.jupyter.registerHooks();
         }
     }
@@ -80,8 +87,11 @@ export class PythonApiProvider implements IPythonApiProvider {
 @injectable()
 export class PythonExtensionChecker implements IPythonExtensionChecker {
     private extensionChangeHandler: Disposable | undefined;
+
     private pythonExtensionId = PythonExtension;
+
     private waitingOnInstallPrompt?: Promise<void>;
+
     constructor(
         @inject(IExtensions) private readonly extensions: IExtensions,
         @inject(IPersistentStateFactory) private readonly persistentStateFactory: IPersistentStateFactory,
@@ -254,8 +264,17 @@ export class InterpreterService implements IInterpreterService {
         return this.apiProvider.getApi().then((api) => api.getInterpreters(resource));
     }
 
-    public getActiveInterpreter(resource?: Uri): Promise<PythonEnvironment | undefined> {
-        return this.apiProvider.getApi().then((api) => api.getActiveInterpreter(resource));
+    public async getActiveInterpreter(resource?: Uri): Promise<PythonEnvironment | undefined> {
+        try {
+            const api = await this.apiProvider.getApi();
+            const interpreter = await api.getActiveInterpreter(resource);
+            // tslint:disable-next-line: no-console
+            console.log(interpreter);
+            return interpreter;
+        } catch (ex) {
+            // tslint:disable-next-line: no-console
+            console.error(ex);
+        }
     }
 
     public getInterpreterDetails(pythonPath: string, resource?: Uri): Promise<undefined | PythonEnvironment> {
