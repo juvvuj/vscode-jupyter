@@ -609,6 +609,9 @@ jobs:
         with:
           node-version: ${{env.NODE_VERSION}}
 
+      - name: Setup for node-gyp
+        run: npm install --global windows-build-tools
+
       - name: Download VSIX
         uses: actions/download-artifact@v2
         with:
