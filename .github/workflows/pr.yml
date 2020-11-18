@@ -611,7 +611,7 @@ jobs:
 
       - name: Setup for node-gyp
         if: ${{ runner.os == 'Windows' }}
-        run: npm install --global windows-build-tools
+        run: npm install --global --production windows-build-tools --vs2015
 
       - name: Download VSIX
         uses: actions/download-artifact@v2
