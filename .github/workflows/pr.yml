@@ -610,6 +610,7 @@ jobs:
           node-version: ${{env.NODE_VERSION}}
 
       - name: Setup for node-gyp
+        if: ${{ runner.os == 'Windows' }}
         run: npm install --global windows-build-tools
 
       - name: Download VSIX
